@@ -46,7 +46,7 @@ public class AddPlace extends AppCompatActivity implements AdapterView.OnItemCli
         placeButton.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                Place mPlace = new Place(placeName.getText().toString(), acTextView.getText().toString());
+                Place mPlace = new Place(placeName.getText().toString(), acTextView.getText().toString(), 0f);
                 if (mPlace.name.length() != 0 && mPlace.address.length() != 0) {
                     // Add place to database
                     AddData(mPlace);

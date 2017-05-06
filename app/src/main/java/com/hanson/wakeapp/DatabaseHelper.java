@@ -53,7 +53,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         }
     }
 
-
     // Returns all data from the database
     public Cursor getData() {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -73,6 +72,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public Cursor getItemAddress(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "SELECT " + COL3 + " FROM " + TABLE_NAME + " WHERE " + COL2 + " = '" + name + "'";
+        Cursor data = db.rawQuery(query, null);
+        return data;
+    }
+
+    public Cursor getObjectFromID(int id, String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query = "SELECT * FROM " + TABLE_NAME + " WHERE " + COL1 + " = '" + id + "'" + " AND " + COL2 + " = '" + name + "'";
         Cursor data = db.rawQuery(query, null);
         return data;
     }

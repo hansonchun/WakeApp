@@ -20,17 +20,17 @@ import java.util.ArrayList;
  * Created by Hanson on 2017-04-16.
  */
 
-public class DirectionsAPI extends AsyncTask<URL, Void, String> {
+public class GeocodeAPI extends AsyncTask<URL, Void, String> {
 
     HttpURLConnection conn;
     public AsyncResponse delegate = null;
 
 
     public interface AsyncResponse {
-        void processFinish(ArrayList durationOutput, ArrayList stopsOutput);
+        void processFinish(ArrayList latLong);
     }
 
-    public DirectionsAPI(AsyncResponse delegate) {
+    public GeocodeAPI(AsyncResponse delegate) {
         this.delegate = delegate;
     }
 
@@ -64,34 +64,24 @@ public class DirectionsAPI extends AsyncTask<URL, Void, String> {
     @Override
     protected void onPostExecute(String result) {
 
-        ArrayList durationList = null;
-        ArrayList stopsList = null;
+        ArrayList latLong = null;
 
         try {
 
             JSONObject jsonObj = new JSONObject(result.toString());
-            JSONArray stepsJSONArray = jsonObj.getJSONArray("routes").getJSONObject(0).getJSONArray("legs").getJSONObject(0).getJSONArray("steps");
+            JSONArray results = jsonObj.getJSONArray("results");
 
-            durationList = new ArrayList();
-            stopsList = new ArrayList();
+            latLong = new ArrayList();
 
-            for(int i = 0; i < stepsJSONArray.length(); i++) {
-                if(stepsJSONArray.getJSONObject(i).getString("travel_mode").equals("TRANSIT")) {
-
-                    durationList.add(stepsJSONArray.getJSONObject(i).getJSONObject("duration").getString("text"));
-                    stopsList.add(stepsJSONArray.getJSONObject(i).getJSONObject("transit_details").getString("num_stops"));
-                }
+            for(int i=0; i<results.length(); i++) {
+                latLong.add(results.getJSONObject(i).getString("geometry"));
             }
 
         } catch (JSONException e){
             e.printStackTrace();
         }
-        if(durationList != null ){
-            delegate.processFinish(durationList, stopsList);
-        } else {
-            System.out.println("Arrays are null.");
-        }
 
+        delegate.processFinish(latLong);
 
     }
 }

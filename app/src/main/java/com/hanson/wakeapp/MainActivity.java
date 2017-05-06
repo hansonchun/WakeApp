@@ -11,8 +11,6 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import java.util.ArrayList;
@@ -68,25 +66,19 @@ public class MainActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 String name = adapterView.getItemAtPosition(i).toString();
 
+                // Get item ID
                 Cursor idData = mDatabaseHelper.getItemID(name);
-                Cursor addrData = mDatabaseHelper.getItemAddress(name);
                 int itemID = -1;
-                String itemAddress = "";
                 while(idData.moveToNext()){
                     itemID = idData.getInt(0);
                 }
-                while(addrData.moveToNext()){
-                    itemAddress = addrData.getString(0);
-                }
-                if(itemID > -1) {
-                    System.out.println("The id is " + itemID + " and the address is " + itemAddress);
 
+                if(itemID > -1) {
+                    // Attach id and name to intent and send to Alarm Activity
                     Intent alarmIntent = new Intent(view.getContext(), Alarm.class);
                     alarmIntent.putExtra("id", itemID);
                     alarmIntent.putExtra("name", name);
-                    alarmIntent.putExtra("address", itemAddress);
                     startActivity(alarmIntent);
-
                 } else {
                     System.out.println("No ID associated with that name");
                 }
