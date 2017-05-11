@@ -6,8 +6,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -50,15 +53,41 @@ public class Alarm extends AppCompatActivity {
         tvDistance = (TextView) findViewById(R.id.distance);
         tvProgress = (TextView) findViewById(R.id.progress);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
+        progressBar.setVisibility(View.INVISIBLE);
         progressBar.setScaleY(3f);
 
-        Button alarmServiceBtn = (Button) findViewById(R.id.startAlarm);
+        final TextView alarmText = (TextView) findViewById(R.id.alarmText);
+
+        final ImageButton alarmServiceBtn = (ImageButton) findViewById(R.id.startAlarm);
+        alarmServiceBtn.setTag(1);
         alarmServiceBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startService(v);
+                final int status = (Integer) v.getTag();
+                if(status == 1) {
+                    // Start the service
+                    startService(v);
+                    alarmServiceBtn.setBackgroundResource(R.mipmap.ic_stoptrip);
+                    alarmText.setText("Stop Trip");
+                    v.setTag(0);
+                } else {
+                    // Stop the service
+                    stopService(v);
+                    alarmServiceBtn.setBackgroundResource(R.mipmap.ic_starttrip);
+                    alarmText.setText("Start Trip");
+                    v.setTag(1);
+                }
+
             }
 
+        });
+
+        final ImageButton settingsBtn = (ImageButton) findViewById(R.id.settingsButton);
+        settingsBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openSettings();
+            }
         });
 
         // Receive information from AlarmService
@@ -74,6 +103,7 @@ public class Alarm extends AppCompatActivity {
 
                 tvDistance.setText("Distance: " + String.format("%.2f", distance) + " km");
                 tvProgress.setText("Progress: " + Integer.toString(Math.round(progress)) + "%");
+                progressBar.setVisibility(View.VISIBLE);
                 progressBar.setProgress(Math.round(progress));
             }
         };
@@ -86,10 +116,20 @@ public class Alarm extends AppCompatActivity {
         startService(serviceIntent);
     }
 
+    public void stopService(View view) {
+        Intent serviceIntent = new Intent(this, AlarmService.class);
+        stopService(serviceIntent);
+    }
+
+    public void openSettings() {
+        Intent settingsIntent = new Intent(this, Settings.class);
+        startActivity(settingsIntent);
+    }
+
     @Override
     protected void onStart() {
         super.onStart();
-        tvDestination.setText(selectedName);
+        tvDestination.setText("Destination: " + selectedName);
         requestLocationPermissions();
         LocalBroadcastManager.getInstance(this).registerReceiver((receiver), new IntentFilter(AlarmService.ALARM_RESULT));
     }

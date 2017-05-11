@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <CheckBoxPreference
+        android:key="vibratePref"
+        android:title="Vibrate"
+        android:summary="Vibrate phone"
+        android:defaultValue="true"/>
+
+    <RingtonePreference
+        android:key="ringtonePref"
+        android:title="Ringtone"
+        android:summary="Select a ringtone"/>
+
+    <ListPreference
+        android:key="thresholdPref"
+        android:title="Threshold"
+        android:summary="Select progress threshold for alarm to ring"
+        android:entries="@array/Threshold"
+        android:entryValues="@array/ThresholdValues"
+        android:defaultValue="80"
+        />
+
+</PreferenceScreen>

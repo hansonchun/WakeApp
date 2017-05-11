@@ -52,7 +52,7 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
 
     LocalBroadcastManager broadcaster;
 
-    public float threshold = 80;
+    float threshold;
     Vibrator vibrator;
 
     Context context;
@@ -67,6 +67,10 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         broadcaster = LocalBroadcastManager.getInstance(this);
         vibrator = (Vibrator) this.context.getSystemService(Context.VIBRATOR_SERVICE);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        editor = prefs.edit();
+
+        String thresholdString = prefs.getString("thresholdPref", "");
+        threshold = Float.valueOf(thresholdString);
     }
 
     @Nullable
@@ -81,7 +85,6 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         editor.putBoolean("isRunning", false);
         editor.apply();
 
-        Toast.makeText(this, "Service Started", Toast.LENGTH_LONG).show();
         selectedID = intent.getIntExtra("selectedID", 0);
         selectedName = intent.getStringExtra("selectedName");
 
@@ -100,7 +103,7 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
     @Override
     public void onDestroy() {
         locationManager.removeUpdates(locationListener);
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_LONG).show();
+
         super.onDestroy();
     }
 
@@ -114,7 +117,7 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
 
                 checkForArrival();
 
-                Toast.makeText(getBaseContext(), currentLat + "-" + currentLon, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getBaseContext(), currentLat + "-" + currentLon, Toast.LENGTH_SHORT).show();
             }
 
             @Override
@@ -214,7 +217,7 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
             System.out.println("Progress is: " + progress);
         } else {
             // Ring alarm here for testing purposes because we can't actually move around to increase progress
-            ringAlarm();
+            // ringAlarm();
             sendResultToActivity(0, initDistance);
         }
     }
@@ -229,11 +232,11 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
 
     private void ringAlarm() {
 
-        Toast.makeText(this, "WE HAVE ARRIVED.", Toast.LENGTH_SHORT).show();
         boolean isRunning = prefs.getBoolean("isRunning", false);
 
         if(!isRunning) {
             Intent intent = new Intent(this, DialogActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
 

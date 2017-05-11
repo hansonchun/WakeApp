@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="ThresholdValues">
+        <item>50</item>
+        <item>60</item>
+        <item>70</item>
+        <item>80</item>
+        <item>90</item>
+    </string-array>
+
+    <string-array name="Threshold">
+        <item>Alert me at 50% progress</item>
+        <item>Alert me at 60% progress</item>
+        <item>Alert me at 70% progress</item>
+        <item>Alert me at 80% progress</item>
+        <item>Alert me at 90% progress</item>
+    </string-array>
+
+</resources>

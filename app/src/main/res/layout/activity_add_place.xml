@@ -11,13 +11,15 @@
         android:id="@+id/textView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add Place:"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="16dp"
+        android:text="Add Place"
         android:textAlignment="center"
         android:textSize="30sp"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_marginTop="16dp"
-        android:layout_marginLeft="16dp"
-        app:layout_constraintLeft_toLeftOf="parent" />
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/placeName"
@@ -47,7 +49,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:ems="10"
-        android:drawableLeft="@drawable/ic_search_black_18dp"
+        android:drawableLeft="@drawable/ic_place_black_24dp"
         android:drawablePadding="10dp"
         android:hint="Address"
         android:layout_marginTop="16dp"
