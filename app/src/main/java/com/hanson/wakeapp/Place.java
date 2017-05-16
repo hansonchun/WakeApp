@@ -1,5 +1,16 @@
 package com.hanson.wakeapp;
 
+import android.database.Cursor;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.provider.ContactsContract;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+
 /**
  * Created by Hanson on 2017-04-14.
  */
@@ -7,21 +18,34 @@ package com.hanson.wakeapp;
 public class Place {
 
     public String name;
-    public String address;
-    public float initDistance;
+    ArrayList<String> addresses;
+    private float initDistance;
+    private int currentTransfer;
 
-    public Place(String name, String address, float initDistance) {
+
+    Place(String name, ArrayList<String> addresses, float initDistance, int currentTransfer){
 
         this.name = name;
-        this.address = address;
+        this.addresses = addresses;
         this.initDistance = initDistance;
+        this.currentTransfer = currentTransfer;
     }
 
-    public float getInitDistance() {
+    float getInitDistance() {
         return initDistance;
     }
 
-    public void setInitDistance(float distance) {
+    void setInitDistance(float distance) {
         this.initDistance = distance;
     }
+
+    int getTransfer() {
+        return currentTransfer;
+    }
+
+    void incrementTransfer() {
+        currentTransfer++;
+    }
+
+
 }

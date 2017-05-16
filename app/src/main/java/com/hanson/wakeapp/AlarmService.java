@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import android.location.LocationListener;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -46,14 +47,12 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
     public double destLong;
 
     DatabaseHelper mDatabaseHelper;
-    public Place mPlace;
-    public int selectedID;
-    public String selectedName;
-
     LocalBroadcastManager broadcaster;
 
+    Alarm mAlarm;
+    Place selectedPlace;
+
     float threshold;
-    Vibrator vibrator;
 
     Context context;
 
@@ -65,9 +64,11 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         context = this;
         mDatabaseHelper = new DatabaseHelper(this);
         broadcaster = LocalBroadcastManager.getInstance(this);
-        vibrator = (Vibrator) this.context.getSystemService(Context.VIBRATOR_SERVICE);
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
         editor = prefs.edit();
+
+        mAlarm = new Alarm();
+        selectedPlace = mAlarm.mPlace;
 
         String thresholdString = prefs.getString("thresholdPref", "");
         threshold = Float.valueOf(thresholdString);
@@ -85,15 +86,9 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         editor.putBoolean("isRunning", false);
         editor.apply();
 
-        selectedID = intent.getIntExtra("selectedID", 0);
-        selectedName = intent.getStringExtra("selectedName");
-
-        // Retrieve place object
-        mPlace = retrievePlace(selectedID, selectedName);
-        System.out.println("Place name is : " + mPlace.name + " and place address is " + mPlace.address);
-
         // Get destination lat and long
-        getLatLong();
+        int currTransfer = selectedPlace.getTransfer();
+        getLatLong(selectedPlace.addresses.get(currTransfer));
 
         // Start listening for location updates
         startListener();
@@ -116,15 +111,12 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
                 currentLon = location.getLongitude();
 
                 checkForArrival();
-
                 //Toast.makeText(getBaseContext(), currentLat + "-" + currentLon, Toast.LENGTH_SHORT).show();
             }
-
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
 
             }
-
             @Override
             public void onProviderEnabled(String provider) {
                 if (ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(context, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -135,35 +127,21 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
                 if(lastKnownLocation != null) {
                     currentLat = lastKnownLocation.getLatitude();
                     currentLon = lastKnownLocation.getLongitude();
-
                 }
             }
-
             @Override
             public void onProviderDisabled(String provider) {
 
             }
         };
-
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 500, 10, locationListener);
     }
 
-    public Place retrievePlace(int id, String name) {
-
-        // Get Place object with item ID and name
-        Cursor placeData = mDatabaseHelper.getObjectFromID(id, name);
-        Place mPlace = null;
-        while(placeData.moveToNext()) {
-            mPlace = new Place(placeData.getString(1), placeData.getString(2), 0f);
-        }
-        return mPlace;
-    }
-
-    private void getLatLong() {
+    private void getLatLong(String address) {
 
         try {
             StringBuilder sb = new StringBuilder(GEOCODE_API_BASE + OUT_JSON);
-            sb.append("?address=" + URLEncoder.encode(mPlace.address, "utf-8"));
+            sb.append("?address=" + URLEncoder.encode(address, "utf-8"));
             sb.append("&key=" + API_KEY);
             System.out.println(sb.toString());
 
@@ -176,19 +154,6 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
     }
 
 
-    @Override
-    public void processFinish(ArrayList latLng) {
-
-        try {
-            JSONObject latLngJSON = new JSONObject(latLng.get(0).toString());
-            destLat = latLngJSON.getJSONObject("location").getDouble("lat");
-            destLong = latLngJSON.getJSONObject("location").getDouble("lng");
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
     private void checkForArrival() {
 
         float[] results;
@@ -197,10 +162,10 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         System.out.println("Distance between points: " + results[0]);
 
         // Get initDistance, if zero, we are just starting.
-        float initDistance = mPlace.getInitDistance();
+        float initDistance = selectedPlace.getInitDistance();
         if(initDistance == 0) {
-            mPlace.setInitDistance(results[0]);
-            calculateProgress(1, mPlace.getInitDistance());
+            selectedPlace.setInitDistance(results[0]);
+            calculateProgress(1, selectedPlace.getInitDistance());
         } else {
             calculateProgress(results[0], initDistance);
         }
@@ -217,7 +182,7 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
             System.out.println("Progress is: " + progress);
         } else {
             // Ring alarm here for testing purposes because we can't actually move around to increase progress
-            // ringAlarm();
+             //ringAlarm();
             sendResultToActivity(0, initDistance);
         }
     }
@@ -227,6 +192,8 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
         Intent intent = new Intent(ALARM_RESULT);
         intent.putExtra("progress", progress);
         intent.putExtra("distance", distance);
+        int currentTransfer = selectedPlace.getTransfer();
+        intent.putExtra("transfer", currentTransfer);
         broadcaster.sendBroadcast(intent);
     }
 
@@ -239,7 +206,19 @@ public class AlarmService extends Service implements GeocodeAPI.AsyncResponse {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
+    }
 
+    @Override
+    public void processFinish(ArrayList latLng) {
+
+        try {
+            JSONObject latLngJSON = new JSONObject(latLng.get(0).toString());
+            destLat = latLngJSON.getJSONObject("location").getDouble("lat");
+            destLong = latLngJSON.getJSONObject("location").getDouble("lng");
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }
 

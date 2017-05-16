@@ -17,4 +17,11 @@
         <item>Alert me at 90% progress</item>
     </string-array>
 
+    <string-array name="transfer_array">
+        <item>No Transfers</item>
+        <item>One Transfer</item>
+        <item>Two Transfers</item>
+        <item>Three Transfers</item>
+    </string-array>
+
 </resources>

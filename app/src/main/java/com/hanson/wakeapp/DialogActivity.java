@@ -15,6 +15,9 @@ import android.widget.Button;
 
 public class DialogActivity extends Activity {
 
+    Alarm mAlarm;
+    Place selectedPlace;
+
     SharedPreferences prefs;
     SharedPreferences.Editor editor;
     Vibrator vibrator;
@@ -26,6 +29,9 @@ public class DialogActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dialog);
+
+        mAlarm = new Alarm();
+        selectedPlace = mAlarm.mPlace;
 
         // Get Preferences
         PreferenceManager.setDefaultValues(this, R.xml.settings, false);
@@ -47,13 +53,11 @@ public class DialogActivity extends Activity {
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Stop the Alarm service and return to main activity
                 stopAlarmService();
-                returnToMain();
+                checkTransfers();
                 DialogActivity.this.finish();
             }
         });
-
     }
 
     @Override
@@ -71,11 +75,33 @@ public class DialogActivity extends Activity {
         super.onDestroy();
     }
 
+    public void startService() {
+
+        Intent serviceIntent = new Intent(this, AlarmService.class);
+        startService(serviceIntent);
+    }
+
     public void stopAlarmService() {
         vibrator.cancel();
         ringtone.stop();
         Intent intent = new Intent(this, AlarmService.class);
         stopService(intent);
+    }
+
+    public void checkTransfers() {
+
+        int currTransfer = (selectedPlace.addresses.size()-1);
+        int transfer = selectedPlace.getTransfer();
+
+        if(currTransfer > transfer) {
+            // Reset initial distance
+            selectedPlace.incrementTransfer();
+            selectedPlace.setInitDistance(0f);
+            startService();
+
+        } else {
+            returnToMain();
+        }
     }
 
     public void returnToMain() {

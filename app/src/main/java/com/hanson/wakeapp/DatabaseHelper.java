@@ -7,6 +7,10 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 /**
  * Created by Hanson on 2017-04-14.
  */
@@ -41,7 +45,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL2, item.name);
-        contentValues.put(COL3, item.address);
+
+        JSONObject json = new JSONObject();
+        try {
+            json.put("addresses", new JSONArray(item.addresses));
+            String addressList = json.toString();
+            contentValues.put(COL3, addressList);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         Log.d(TAG, "addData: Adding " + item + " to " + TABLE_NAME);
 

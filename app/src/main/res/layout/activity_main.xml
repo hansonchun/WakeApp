@@ -20,10 +20,10 @@
         android:id="@+id/addPlace"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|right"
+
         android:layout_margin="@dimen/fab_margin"
         android:src="@drawable/ic_add_circle_white_24dp"
-        app:backgroundTint="@color/cast_libraries_material_featurehighlight_outer_highlight_default_color"
+        app:backgroundTint="@color/colorPrimary"
         app:layout_anchor="@+id/include"
         app:layout_anchorGravity="bottom|right" />
 

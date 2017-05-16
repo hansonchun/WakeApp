@@ -14,7 +14,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="8dp"
         android:padding="20dp"
-        android:text="You have arrived! WakeApp!"
+        android:text="You are arriving! WakeApp!"
         android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.505"
         app:layout_constraintLeft_toLeftOf="parent"
